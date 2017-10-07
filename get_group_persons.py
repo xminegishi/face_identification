@@ -9,9 +9,10 @@ import sys
 import argparse
 
 def main(args):
-    headers = {'Context-Type': 'application/json',
+    headers = {
+            'Content-Type': 'application/json',
             'Ocp-Apim-Subscription-Key': args.key
-            }
+    }
 
     personGroupId = args.group_id
     body = ""

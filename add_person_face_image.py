@@ -5,16 +5,14 @@ import http.client
 import urllib.request, urllib.parse, urllib.error
 import base64
 import sys
-import json
 import argparse
-import requests
-import io
 
 def main(args):
-    headers = {'Context-Type': 'application/json',
+    headers = {
+            'Content-Type': 'application/octet-stream',
             'Ocp-Apim-Subscription-Key': args.key,
             'cache-control': 'no-cache'
-            }
+    }
 
     personGroupId = args.group_id
     personId = args.person_id
