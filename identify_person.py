@@ -118,7 +118,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--group_id', type=str, default='me_counter_group_id')
-    parser.add_argument('--key', type=str, default='cddfbe29b3b84bef974323d654a90685')
+    parser.add_argument('--key', type=str)
     parser.add_argument('--image_file', type=str)
     arguments = parser.parse_args()
     main(arguments)
