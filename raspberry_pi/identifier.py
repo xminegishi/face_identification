@@ -22,7 +22,7 @@ def detect_face(key, image):
             # Request parameters
             'returnFaceId': 'ture',
             'returnFaceLandmarks': 'false',
-            'returnFaceAttributes': 'age,gender'
+            'returnFaceAttributes': 'age,gender,emotion'
     })
 
     f = open(image, "rb")
@@ -37,6 +37,7 @@ def detect_face(key, image):
         faceId = ""
         gender = ""
         age = ""
+        emotion = dict()
         if response.status == 200:
             res_body = response.read().decode("utf-8")
             results = json.loads(res_body)
@@ -49,13 +50,15 @@ def detect_face(key, image):
                 gender = results[0]["faceAttributes"]["gender"]
                 # Get age
                 age = results[0]["faceAttributes"]["age"]
+                # Get emotion
+                emotion = results[0]["faceAttributes"]["emotion"]
             else:
                 print("No face detected.")
         else:
             print("detect_face")
             print(response.status, response.reason)
         conn.close()
-        return faceRec, faceId, gender, age
+        return faceRec, faceId, gender, age, emotion
     except Exception as e:
         print(e.args)
         raise
@@ -131,7 +134,7 @@ def main(args):
             cv2.imwrite(filename, frame)
             img_id += 1
 
-            faceRec, faceId, gender, age = detect_face(args.key, filename)
+            faceRec, faceId, gender, age, emotion = detect_face(args.key, filename)
 
             if faceId:
                 top_left = (faceRec["left"], faceRec["top"])
@@ -144,6 +147,18 @@ def main(args):
                     person_name = get_person(args.key, personId, args.group_id)
                     print("Detected person is '%s', Confidence: %f" % (person_name, candidate[0]["confidence"]))
                 cv2.putText(frame, person_name, (top_left[0], top_left[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                happiness = ("happiness: %s" % emotion["happiness"])
+                anger = ("anger: %s" % emotion["anger"])
+                sadness = ("sadness: %s" % emotion["sadness"])
+                fear = ("fear: %s" % emotion["fear"])
+                surprise =  ("surprise: %s" % emotion["surprise"])
+                neutral = ("neutral: %s" % emotion["neutral"])
+                cv2.putText(frame, happiness, (top_left[0], bottom_right[1]+10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, anger, (top_left[0], bottom_right[1]+22), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, sadness, (top_left[0], bottom_right[1]+34), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, fear, (top_left[0], bottom_right[1]+46), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, surprise, (top_left[0], bottom_right[1]+58), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, neutral, (top_left[0], bottom_right[1]+70), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
                 cv2.imshow(str(img_id), frame)
 
     cap.release()
