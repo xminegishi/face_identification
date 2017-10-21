@@ -10,6 +10,12 @@ import base64
 import sys
 import json
 
+ESCAPE = 27
+if sys.platform == "darwin":
+    ENTER = 13
+elif "linux" in sys.platform:
+    ENTER = 10
+
 
 def detect_face(key, image):
     headers = {
@@ -127,9 +133,10 @@ def main(args):
         cv2.imshow("Web camera", frame)
 
         key = cv2.waitKey(1)
-        if key == 27:# Escape
+        # print(key)
+        if key == ESCAPE:
             break
-        elif key == 10:# Enter
+        elif key == ENTER:
             filename = "snapshots/" + str(img_id) + ".png"
             cv2.imwrite(filename, frame)
             img_id += 1
@@ -145,8 +152,12 @@ def main(args):
                 if candidate:
                     personId = candidate[0]["personId"]
                     person_name = get_person(args.key, personId, args.group_id)
-                    print("Detected person is '%s', Confidence: %f" % (person_name, candidate[0]["confidence"]))
-                cv2.putText(frame, person_name, (top_left[0], top_left[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                    confidence = candidate[0]["confidence"]
+                    print("Detected person is '%s', Confidence: %f" % (person_name, confidence))
+                    prob = "Confidence: " + str(confidence)
+                    cv2.putText(frame, prob, (top_left[0], top_left[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, person_name, (top_left[0], top_left[1]-18), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+
                 happiness = ("happiness: %s" % emotion["happiness"])
                 anger = ("anger: %s" % emotion["anger"])
                 sadness = ("sadness: %s" % emotion["sadness"])
@@ -172,4 +183,3 @@ if __name__ == '__main__':
     parser.add_argument('--key', type=str)
     arguments = parser.parse_args()
     main(arguments)
-
