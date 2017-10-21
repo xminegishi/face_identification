@@ -17,7 +17,10 @@ def main(args):
     personGroupId = args.group_id
     personId = args.person_id
 
-    body = ("{'url':'%s'}" % args.image_url)
+    # body = ("{'url':'%s'}" % args.image_url)
+    f = open(args.image_url, "rb")
+    body = f.read()
+    f.close
 
     try:
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
