@@ -39,32 +39,33 @@ def detect_face(key, image):
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
         conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
         response = conn.getresponse()
-        faceRec = dict()
-        faceId = ""
-        gender = ""
-        age = ""
-        emotion = dict()
+        faceRecs = list()
+        faceIds = list()
+        genders = list()
+        ages = list()
+        emotions = list()
         if response.status == 200:
             res_body = response.read().decode("utf-8")
             results = json.loads(res_body)
             if results:
-                # Get faceRectangle
-                faceRec = results[0]["faceRectangle"]
-                # Get faceId
-                faceId = results[0]["faceId"]
-                # Get gender
-                gender = results[0]["faceAttributes"]["gender"]
-                # Get age
-                age = results[0]["faceAttributes"]["age"]
-                # Get emotion
-                emotion = results[0]["faceAttributes"]["emotion"]
+                for result in results:
+                    # Get faceId
+                    faceIds.append(result["faceId"])
+                    # Get faceRectangle
+                    faceRecs.append(result["faceRectangle"])
+                    # Get gender
+                    genders.append(result["faceAttributes"]["gender"])
+                    # Get age
+                    ages.append(result["faceAttributes"]["age"])
+                    # Get emotion
+                    emotions.append(result["faceAttributes"]["emotion"])
             else:
                 print("No face detected.")
         else:
             print("detect_face")
             print(response.status, response.reason)
         conn.close()
-        return faceRec, faceId, gender, age, emotion
+        return faceIds, faceRecs, genders, ages, emotions
     except Exception as e:
         print(e.args)
         raise
@@ -141,11 +142,11 @@ def main(args):
             cv2.imwrite(filename, frame)
             img_id += 1
 
-            faceRec, faceId, gender, age, emotion = detect_face(args.key, filename)
+            faceIds, faceRecs, genders, ages, emotions = detect_face(args.key, filename)
 
-            if faceId:
-                top_left = (faceRec["left"], faceRec["top"])
-                bottom_right = (top_left[0]+faceRec["width"], top_left[1]+faceRec["height"])
+            for index, faceId in enumerate(faceIds):
+                top_left = (faceRecs[index]["left"], faceRecs[index]["top"])
+                bottom_right = (top_left[0]+faceRecs[index]["width"], top_left[1]+faceRecs[index]["height"])
                 cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0))
                 person_name = "Sorry... Who is it?"
                 candidate = identify_person(args.key, faceId, args.group_id)
@@ -158,18 +159,22 @@ def main(args):
                     cv2.putText(frame, prob, (top_left[0], top_left[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
                 cv2.putText(frame, person_name, (top_left[0], top_left[1]-18), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
 
-                happiness = ("happiness: %s" % emotion["happiness"])
-                anger = ("anger: %s" % emotion["anger"])
-                sadness = ("sadness: %s" % emotion["sadness"])
-                fear = ("fear: %s" % emotion["fear"])
-                surprise =  ("surprise: %s" % emotion["surprise"])
-                neutral = ("neutral: %s" % emotion["neutral"])
-                cv2.putText(frame, happiness, (top_left[0], bottom_right[1]+10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
-                cv2.putText(frame, anger, (top_left[0], bottom_right[1]+22), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
-                cv2.putText(frame, sadness, (top_left[0], bottom_right[1]+34), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
-                cv2.putText(frame, fear, (top_left[0], bottom_right[1]+46), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
-                cv2.putText(frame, surprise, (top_left[0], bottom_right[1]+58), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
-                cv2.putText(frame, neutral, (top_left[0], bottom_right[1]+70), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                gender = ("gender: %s" % genders[index])
+                age = ("age: %s" % ages[index])
+                happiness = ("happiness: %s" % emotions[index]["happiness"])
+                anger = ("anger: %s" % emotions[index]["anger"])
+                sadness = ("sadness: %s" % emotions[index]["sadness"])
+                fear = ("fear: %s" % emotions[index]["fear"])
+                surprise =  ("surprise: %s" % emotions[index]["surprise"])
+                neutral = ("neutral: %s" % emotions[index]["neutral"])
+                cv2.putText(frame, gender, (top_left[0], bottom_right[1]+10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, age, (top_left[0]+100, bottom_right[1]+10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, happiness, (top_left[0], bottom_right[1]+22), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, anger, (top_left[0], bottom_right[1]+34), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, sadness, (top_left[0], bottom_right[1]+46), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, fear, (top_left[0], bottom_right[1]+58), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, surprise, (top_left[0], bottom_right[1]+70), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
+                cv2.putText(frame, neutral, (top_left[0], bottom_right[1]+82), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0))
                 cv2.imshow(str(img_id), frame)
 
     cap.release()
