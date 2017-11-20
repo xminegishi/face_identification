@@ -10,7 +10,7 @@ import base64
 import sys
 import json
 
-ESCAPE = 27
+KEY_Q = 113
 if sys.platform == "darwin":
     ENTER = 13
 elif "linux" in sys.platform:
@@ -126,18 +126,36 @@ def main(args):
     img_id = 0
     cv2.namedWindow("Web camera", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("Web camera", 640, 480)
+    face_cascade = cv2.CascadeClassifier("/usr/local/Cellar/opencv/3.2.0/share/OpenCV/haarcascades/haarcascade_frontalface_alt_tree.xml")
+    # eye_cascade = cv2.CascadeClassifier("/usr/local/Cellar/opencv/3.2.0/share/OpenCV/haarcascades/haarcascade_eye.xml")
+    detect_counter = 0
 
     while(True):
+        key = cv2.waitKey(1)
+        # print(key)
+        if key == KEY_Q:
+            break
+
         ret, frame = cap.read()
         if args.flip:
             frame = cv2.flip(frame, -1)
-        cv2.imshow("Web camera", frame)
 
-        key = cv2.waitKey(1)
-        # print(key)
-        if key == ESCAPE:
-            break
-        elif key == ENTER:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray)
+        for face in faces:
+            cv2.rectangle(frame, tuple([face[0], face[1]]), tuple([face[0]+face[2], face[1]+face[3]]), (0, 255, 0))
+        # eyes = eye_cascade.detectMultiScale(gray)
+        # for eye in eyes:
+        #     cv2.rectangle(frame, tuple([eye[0], eye[1]]), tuple([eye[0]+eye[2], eye[1]+eye[3]]), (0, 255, 0))
+        cv2.imshow("Web camera", frame)
+        # continue
+
+        if len(faces) == 0:
+            detect_counter = 0
+        else:
+            detect_counter += 1
+            if detect_counter < 10: continue
+            detect_counter = 0
             filename = "snapshots/" + str(img_id) + ".png"
             cv2.imwrite(filename, frame)
             img_id += 1
