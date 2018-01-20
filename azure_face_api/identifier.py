@@ -124,9 +124,8 @@ def get_person(key, personId, groupId):
 def main(args):
     cap = cv2.VideoCapture(0)
     img_id = 0
-    cv2.namedWindow("Web camera", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Web camera", 640, 480)
-    face_cascade = cv2.CascadeClassifier("/usr/local/Cellar/opencv/3.2.0/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml")
+    cv2.namedWindow("Webcam", cv2.WINDOW_NORMAL)
+    face_cascade = cv2.CascadeClassifier("/usr/local/Cellar/opencv/3.4.0/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml")
     # eye_cascade = cv2.CascadeClassifier("/usr/local/Cellar/opencv/3.2.0/share/OpenCV/haarcascades/haarcascade_eye.xml")
     detect_counter = 0
 
@@ -148,6 +147,7 @@ def main(args):
         # for eye in eyes:
         #     cv2.rectangle(frame, tuple([eye[0], eye[1]]), tuple([eye[0]+eye[2], eye[1]+eye[3]]), (0, 255, 0))
         cv2.imshow("Webcam", frame)
+        # continue
 
         if len(faces) == 0:
             detect_counter = 0
