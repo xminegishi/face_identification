@@ -3,3 +3,4 @@
 *.jpeg
 *.png
 
+__pycache__/
