@@ -10,7 +10,7 @@ import numpy as np
 
 def triplet_loss(y_true, y_pred, alpha = 0.2):
     """
-    Implementation of the triplet loss as defined by formula (3)
+    Implementation of the triplet loss
 
     Arguments:
     y_true -- true labels, required when you define a loss in Keras, you don't need it in this function.
@@ -76,12 +76,12 @@ def main(args):
         path = "registered_images/" + person + ".png"
         database[person] = M.img_to_encoding(path, FRmodel)
 
-    distination = verify(image, identity, database, FRmodel)
+    distance = verify(image, identity, database, FRmodel)
 
-    if distination < dist_thold:
-        print("It's %s. Distination: %f" % (str(identity), distination))
+    if distance < dist_thold:
+        print("It's %s. Distance: %f" % (str(identity), distance))
     else:
-        print("It's NOT %s. Distination: %f" % (str(identity), distination))
+        print("It's NOT %s. Distance: %f" % (str(identity), distance))
 
 
 if __name__ == "__main__":

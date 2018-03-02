@@ -31,7 +31,7 @@ def main(args):
     frequency = DETECTION_FREQUENCY
 
     while(True):
-        key = cv2.waitKey(40)
+        key = cv2.waitKey(50)
         # print(key)
         if key == KEY_Q:
             break
