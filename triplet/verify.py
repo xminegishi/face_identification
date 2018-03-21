@@ -6,6 +6,7 @@ import model as M
 import argparse
 import tensorflow as tf
 import numpy as np
+# import time
 
 
 def triplet_loss(y_true, y_pred, alpha = 0.2):
@@ -68,20 +69,29 @@ def main(args):
 
     FRmodel = M.inc_v2.faceRecoModel(input_shape=(3, 96, 96))
     # print("Total Params:", FRmodel.count_params())
-    FRmodel.compile(optimizer = 'adam', loss = triplet_loss, metrics = ['accuracy'])
+    # FRmodel.compile(optimizer = 'adam', loss = triplet_loss, metrics = ['accuracy'])
+    # start_time = time.time()
     M.load_weights_from_FaceNet(FRmodel)
+    # elapsed_time = time.time() - start_time
+    # print("Elapsed time(load weights):{0}".format(elapsed_time) + "[sec]")
 
     database = {}
+    # start_time = time.time()
     for person in people:
         path = "registered_images/" + person + ".png"
         database[person] = M.img_to_encoding(path, FRmodel)
+    # elapsed_time = time.time() - start_time
+    # print("Elapsed time(make database):{0}".format(elapsed_time) + "[sec]")
 
+    # start_time = time.time()
     distance = verify(image, identity, database, FRmodel)
 
     if distance < dist_thold:
         print("It's %s. Distance: %f" % (str(identity), distance))
     else:
         print("It's NOT %s. Distance: %f" % (str(identity), distance))
+    # elapsed_time = time.time() - start_time
+    # print("Elapsed time(compute distance and judge):{0}".format(elapsed_time) + "[sec]")
 
 
 if __name__ == "__main__":
