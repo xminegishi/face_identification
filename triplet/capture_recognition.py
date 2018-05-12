@@ -47,6 +47,7 @@ def who_is_it(image_path, database, model):
 
         # Compute L2 distance between the target "encoding" and the current "emb" from the database.
         dist = np.linalg.norm(db_enc - encoding)
+        print(dist)
 
         # If this distance is less than the min_dist, then set min_dist to dist, and identity to name.
         if dist < min_dist:
