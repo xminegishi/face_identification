@@ -47,6 +47,7 @@ def who_is_it(image_path, database, model):
 
         # Compute L2 distance between the target "encoding" and the current "emb" from the database.
         dist = np.linalg.norm(db_enc - encoding)
+        print(dist)
 
         # If this distance is less than the min_dist, then set min_dist to dist, and identity to name.
         if dist < min_dist:
@@ -71,6 +72,7 @@ def main(args):
         path = "registered_images/" + member + ".png"
         database[member] = M.img_to_encoding(path, FRmodel)
 
+        # Set the Webcam's url
     cap = cv2.VideoCapture(url)
 
     if not cap.isOpened():
@@ -78,6 +80,7 @@ def main(args):
         return
 
     cv2.namedWindow("Web camera", cv2.WINDOW_NORMAL)
+    # This is my OpenCV dir
     face_cascade = cv2.CascadeClassifier("/usr/local/Cellar/opencv/3.4.0/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
     frequency = DETECTION_FREQUENCY
 
@@ -126,7 +129,7 @@ if __name__ == "__main__":
     parser.add_argument('--url', type=str)
     parser.add_argument('--sf', type=float, default=1.10, help="scaleFactor")
     parser.add_argument('--mn', type=int, default=3, help="minNeighbors")
-    parser.add_argument('--dist-thold', type=float, default=0.6)
+    parser.add_argument('--dist-thold', type=float, default=0.7)
     parser.add_argument('--members', type=str, nargs='+')
     arguments = parser.parse_args()
     main(arguments)
